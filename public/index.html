@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Elite Hockey | Boutique Pro</title>
+  <!-- Google Fonts: Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Stripe.js -->
+  <script src="https://js.stripe.com/v3/"></script>
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <!-- Header / Navigation -->
+  <header>
+    <div class="header-container">
+      <a href="#" class="logo" id="btn-logo">
+        <span class="logo-icon">⚡</span> Elite Hockey
+      </a>
+      <nav>
+        <a href="#" class="nav-link active" id="btn-nav-catalogue"><i class="fa-solid fa-store"></i> Catalogue</a>
+        <a href="#" class="nav-link" id="btn-nav-panier">
+          <i class="fa-solid fa-shopping-bag"></i> Panier
+          <span id="cart-badge" class="cart-badge hidden">0</span>
+        </a>
+        <a href="#" class="nav-link" id="btn-nav-admin"><i class="fa-solid fa-gauge"></i> Admin</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- CATALOGUE VIEW -->
+    <section id="view-catalogue" class="view">
+      <div class="hero">
+        <div class="hero-content">
+          <span class="hero-tag">SÉLECTION PRO ELITE</span>
+          <h1>Équipez-vous comme les pros</h1>
+          <p>Découvrez notre gamme exclusive de hockey sur glace. Matériel carbone ultra-léger et protections haute performance homologuées.</p>
+        </div>
+      </div>
+      
+      <div class="section-header">
+        <h2>Notre Catalogue</h2>
+        <p>Les meilleurs équipements de performance</p>
+      </div>
+
+      <div id="product-grid" class="product-grid">
+        <!-- JS inserts product cards here -->
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+      </div>
+    </section>
+
+    <!-- PRODUCT DETAIL MODAL -->
+    <div id="product-modal" class="modal hidden">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content">
+        <button class="modal-close" id="btn-close-modal"><i class="fa-solid fa-xmark"></i></button>
+        <div class="modal-body" id="modal-product-details">
+          <!-- JS inserts details here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- PANIER VIEW -->
+    <section id="view-panier" class="view hidden">
+      <div class="section-header">
+        <h2>Votre Panier</h2>
+        <p>Gérez vos articles avant de finaliser votre commande</p>
+      </div>
+
+      <div class="cart-container">
+        <div class="cart-main">
+          <div id="cart-items" class="cart-items">
+            <!-- JS inserts items here -->
+          </div>
+          
+          <div class="cart-empty-state id-empty-cart hidden" id="cart-empty">
+            <i class="fa-solid fa-basket-shopping empty-icon"></i>
+            <h3>Votre panier est vide</h3>
+            <p>Parcourez notre catalogue pour y ajouter des équipements.</p>
+            <button class="btn btn-primary" id="btn-back-to-store">Retour à la boutique</button>
+          </div>
+        </div>
+
+        <div class="cart-summary-card" id="cart-summary">
+          <h3>Résumé de la commande</h3>
+          <hr>
+          <div class="summary-row">
+            <span>Sous-total</span>
+            <span id="summary-subtotal">0.00 $</span>
+          </div>
+          <div class="summary-row">
+            <span>Livraison</span>
+            <span class="free-shipping">Gratuite</span>
+          </div>
+          <hr>
+          <div class="summary-row total-row">
+            <span>Total</span>
+            <span id="summary-total">0.00 $</span>
+          </div>
+          <button class="btn btn-checkout btn-stripe" id="btn-start-checkout">
+            <span>Procéder au paiement</span> <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- CHECKOUT VIEW (Stripe Embedded) -->
+    <section id="view-checkout" class="view hidden">
+      <div class="section-header">
+        <button class="btn-back" id="btn-back-to-cart"><i class="fa-solid fa-arrow-left"></i> Retour au panier</button>
+        <h2>Paiement Sécurisé</h2>
+        <p>Finalisez votre transaction via la passerelle Stripe intégrée</p>
+      </div>
+
+      <div class="checkout-wrapper">
+        <div class="checkout-info">
+          <h3>Commande sécurisée</h3>
+          <p>Vos informations de carte bancaire sont chiffrées de bout en bout par Stripe.</p>
+          <div id="checkout-amount-display" class="checkout-amount">Total à payer : <span>0.00 $</span></div>
+        </div>
+        <!-- Stripe Embedded Checkout container -->
+        <div id="checkout" class="stripe-checkout-container">
+          <div class="stripe-loader">
+            <div class="spinner"></div>
+            <p>Initialisation de la passerelle de paiement sécurisée...</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SUCCESS VIEW -->
+    <section id="view-success" class="view hidden">
+      <div class="success-card">
+        <div class="success-icon-wrapper">
+          <i class="fa-solid fa-circle-check success-icon"></i>
+        </div>
+        <h2>🎉 Paiement Approuvé !</h2>
+        <p>Merci pour votre achat. Votre commande a été traitée avec succès par Stripe.</p>
+        <div class="success-details">
+          <div class="detail-row">
+            <span>Statut de transaction</span>
+            <span class="badge badge-success">Confirmé</span>
+          </div>
+          <div class="detail-row">
+            <span>Référence Stripe</span>
+            <span id="success-session-id" class="session-ref">cs_test_...</span>
+          </div>
+        </div>
+        <button class="btn btn-primary" id="btn-success-home">Retourner au catalogue</button>
+      </div>
+    </section>
+
+    <!-- LOGIN VIEW -->
+    <section id="view-login" class="view hidden">
+      <div class="form-container" style="max-width: 420px; margin: 40px auto;">
+        <div style="text-align: center; margin-bottom: 24px;">
+          <div class="success-icon-wrapper" style="background-color: rgba(0, 242, 254, 0.1); border-color: rgba(0, 242, 254, 0.2); box-shadow: 0 0 20px var(--primary-glow);">
+            <i class="fa-solid fa-lock" style="font-size: 2.2rem; color: var(--primary);"></i>
+          </div>
+          <h2>Connexion Admin</h2>
+          <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 4px;">Accéder aux outils de gestion du site</p>
+        </div>
+        <form id="form-login" class="admin-form">
+          <div class="form-group">
+            <label for="login-username">Nom d'utilisateur</label>
+            <input type="text" id="login-username" placeholder="ex: admin" required autocomplete="username">
+          </div>
+          <div class="form-group">
+            <label for="login-password">Mot de passe</label>
+            <input type="password" id="login-password" placeholder="••••••••" required autocomplete="current-password">
+          </div>
+          <div id="login-error" class="error-message hidden" style="color: var(--accent); font-weight: 600; font-size: 0.9rem; margin: 5px 0;">
+            <!-- Errors will go here -->
+          </div>
+          <button type="submit" class="btn btn-primary" style="margin-top: 10px; width: 100%;">
+            Se connecter <i class="fa-solid fa-sign-in-alt"></i>
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ADMIN VIEW -->
+    <section id="view-admin" class="view hidden">
+      <div class="section-header">
+        <h2>Tableau de bord Admin</h2>
+        <p>Gérez vos produits et visualisez l'historique des transactions Stripe.</p>
+      </div>
+
+      <div class="admin-tabs">
+        <button class="tab-btn active" id="tab-btn-transactions"><i class="fa-solid fa-list-check"></i> Transactions</button>
+        <button class="tab-btn" id="tab-btn-products"><i class="fa-solid fa-tags"></i> Produits</button>
+        <button class="tab-btn" id="tab-btn-users"><i class="fa-solid fa-users-gear"></i> Utilisateurs</button>
+        <button class="tab-btn" id="btn-logout" style="margin-left: auto; color: var(--accent);"><i class="fa-solid fa-power-off"></i> Déconnexion</button>
+      </div>
+
+      <!-- Admin Transactions Section -->
+      <div id="admin-sec-transactions" class="admin-section">
+        <div class="card-table-wrapper">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Date / Heure</th>
+                <th>ID Transaction / Client</th>
+                <th>Articles Achetés</th>
+                <th>Montant</th>
+                <th>Statut</th>
+                <th>Détails</th>
+              </tr>
+            </thead>
+            <tbody id="admin-transactions-list">
+              <!-- JS will insert rows here -->
+            </tbody>
+          </table>
+          <div class="cart-empty-state hidden" id="admin-transactions-empty">
+            <i class="fa-solid fa-receipt empty-icon"></i>
+            <p>Aucune transaction enregistrée pour le moment.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Admin Products Section -->
+      <div id="admin-sec-products" class="admin-section hidden">
+        <div style="display: grid; grid-template-columns: 1.35fr 1fr; gap: 30px; align-items: start;">
+          <!-- Products list table -->
+          <div class="card-table-wrapper">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Produit</th>
+                  <th>ID / Code</th>
+                  <th>Prix</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="admin-products-list">
+                <!-- JS will insert rows here -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Product Editor Form (Unified Create & Update) -->
+          <div class="form-container" style="padding: 30px; margin: 0;">
+            <h3 id="admin-product-form-title" style="color: #fff; margin-bottom: 15px; font-size: 1.15rem;"><i class="fa-solid fa-plus"></i> Ajouter un Produit</h3>
+            <form id="form-add-product" class="admin-form" style="gap: 15px;">
+              <div class="form-group" id="group-prod-id">
+                <label for="prod-id">Identifiant Unique (slug, ex: ccm-as5)</label>
+                <input type="text" id="prod-id" placeholder="identifiant-unique-sans-espace" required>
+              </div>
+              
+              <div class="form-group">
+                <label for="prod-name">Nom du Produit</label>
+                <input type="text" id="prod-name" placeholder="ex: Gants CCM Super Tacks" required>
+              </div>
+              
+              <div class="form-group">
+                <label for="prod-price">Prix (CAD $)</label>
+                <input type="number" id="prod-price" placeholder="ex: 149.99" min="0.01" step="0.01" required>
+              </div>
+
+              <div class="form-group">
+                <label for="prod-desc">Description</label>
+                <textarea id="prod-desc" rows="3" placeholder="Description détaillée du produit..." required></textarea>
+              </div>
+
+              <div class="form-group">
+                <label for="prod-image-file">Image du Produit</label>
+                <input type="file" id="prod-image-file" accept="image/*" required>
+                <span class="input-hint" id="prod-image-hint">Formats : JPG, PNG, WEBP. L'image est requise lors de la création d'un produit.</span>
+              </div>
+
+              <div class="form-actions" style="gap: 10px;">
+                <button type="button" class="btn btn-secondary hidden" id="btn-cancel-edit-product">Annuler</button>
+                <button type="submit" class="btn btn-primary" id="btn-submit-product"><i class="fa-solid fa-floppy-disk"></i> Enregistrer</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Admin Users Section -->
+      <div id="admin-sec-users" class="admin-section hidden">
+        <div style="display: grid; grid-template-columns: 1.55fr 1fr; gap: 30px; align-items: start;">
+          <!-- Users List -->
+          <div class="card-table-wrapper">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Utilisateur</th>
+                  <th>Rôle</th>
+                  <th>Statut</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="admin-users-list">
+                <!-- JS will insert rows here -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Add/Modify User Form -->
+          <div class="form-container" style="padding: 30px; margin: 0;">
+            <h3 id="admin-user-form-title" style="color: #fff; margin-bottom: 15px; font-size: 1.15rem;"><i class="fa-solid fa-user-plus"></i> Créer un Utilisateur</h3>
+            <form id="form-add-user" class="admin-form" style="gap: 15px;">
+              <div class="form-group">
+                <label for="user-username">Nom d'utilisateur</label>
+                <input type="text" id="user-username" placeholder="ex: gerant" required>
+              </div>
+              <div class="form-group">
+                <label for="user-password" id="user-password-label">Mot de passe</label>
+                <input type="password" id="user-password" placeholder="Mot de passe sécurisé" required>
+                <span class="input-hint hidden" id="user-password-hint">Laissez vide pour conserver le mot de passe actuel.</span>
+              </div>
+              <div class="form-group">
+                <label for="user-role">Rôle / Accès</label>
+                <select id="user-role">
+                  <option value="admin">Administrateur</option>
+                  <option value="read-only">Lecture seule (Transactions)</option>
+                </select>
+              </div>
+              <div class="form-group hidden" id="group-user-status">
+                <label for="user-status">Statut du compte</label>
+                <select id="user-status">
+                  <option value="active">Actif</option>
+                  <option value="blocked">Bloqué / Suspendu</option>
+                </select>
+              </div>
+              <div class="form-actions" style="gap: 10px;">
+                <button type="button" class="btn btn-secondary hidden" id="btn-cancel-edit-user">Annuler</button>
+                <button type="submit" class="btn btn-primary" id="btn-submit-user">Créer le compte</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- TRANSACTION DETAILS MODAL -->
+  <div id="transaction-modal" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content" style="max-width: 600px;">
+      <button class="modal-close" id="btn-close-tx-modal"><i class="fa-solid fa-xmark"></i></button>
+      <div class="modal-body" style="padding: 30px;">
+        <div style="text-align: center; margin-bottom: 24px; border-bottom: 1px dashed var(--border-color); padding-bottom: 20px;">
+          <i class="fa-solid fa-receipt" style="font-size: 3rem; color: var(--primary); margin-bottom: 12px;"></i>
+          <h2>Reçu de Transaction</h2>
+          <p id="tx-detail-id" style="font-family: monospace; font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;"></p>
+        </div>
+        
+        <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px;">
+          <div class="detail-row">
+            <span>Date de transaction</span>
+            <span id="tx-detail-date" style="font-weight: 600; color: #fff;"></span>
+          </div>
+          <div class="detail-row">
+            <span>Adresse Email Client</span>
+            <span id="tx-detail-email" style="font-weight: 600; color: #fff;"></span>
+          </div>
+          <div class="detail-row">
+            <span>Statut Stripe</span>
+            <span id="tx-detail-status" class="badge"></span>
+          </div>
+          <div class="detail-row">
+            <span>Destinataire</span>
+            <span id="tx-detail-shipping-name" style="font-weight: 600; color: #fff;"></span>
+          </div>
+          <div class="detail-row">
+            <span>Adresse de Livraison</span>
+            <span id="tx-detail-shipping-address" style="font-weight: 600; color: #fff;"></span>
+          </div>
+          <div class="detail-row">
+            <span>Téléphone</span>
+            <span id="tx-detail-phone" style="font-weight: 600; color: #fff;"></span>
+          </div>
+        </div>
+        
+        <h4 style="color: #fff; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 6px;">Articles achetés</h4>
+        <div id="tx-detail-items" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px;">
+          <!-- JS will populate detailed items here -->
+        </div>
+        
+        <div style="background-color: rgba(0,0,0,0.2); border-radius: var(--radius-md); padding: 16px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-color);">
+          <strong style="color: #fff;">Montant Total Payé</strong>
+          <span id="tx-detail-amount" style="font-size: 1.4rem; font-weight: 800; color: var(--primary);">0.00 $</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-container">
+      <p>&copy; 2026 Elite Hockey Inc. Tous droits réservés. Environnement de Test Transactionnel.</p>
+    </div>
+  </footer>
+
+  <!-- App Logic -->
+  <script src="app.js"></script>
+</body>
+</html>
